@@ -9,7 +9,6 @@ const routes: RouteRecordRaw[] = [
       { path: 'login', component: () => import('pages/LoginPage.vue'), meta: { requiresAuth: false } },
       { path: 'verify-email', component: () => import('pages/VerifyEmailPage.vue'), meta: { requiresAuth: false } },
       { path: 'dashboard', component: () => import('pages/DashboardPage.vue'), meta: { requiresAuth: true } },
-      { path: 'register', component: () => import('pages/RegistrationPage.vue'), meta: { requiresAuth: false } },
       { path: 'equivalency', component: () => import('pages/CertificateEquivalencyPage.vue'), meta: { requiresAuth: false } },
     ],
   },

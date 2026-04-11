@@ -1,354 +1,340 @@
 <template>
-  <q-page class="bg-grey-1 font-cairo q-pa-md">
-    <div class="equivalency-shell q-mx-auto">
+  <q-page class="bg-grey-1 q-pa-md">
+    <q-card class="q-mx-auto shadow-2" style="max-width: 900px">
+      <q-card-section class="bg-primary text-white q-py-sm">
+        <div class="text-h6">إضافة طالب</div>
+      </q-card-section>
 
-      <!-- Page Header -->
-      <div class="row items-center q-mb-lg q-gutter-md">
-        <div class="col">
-          <div class="text-h5 text-weight-bold text-primary">معادلة الشهادات الأجنبية</div>
-          <div class="text-caption text-grey-7 q-mt-xs">
-            خدمة رسمية معتمدة من وزارة التربية والتعليم للجمهورية العربية السورية
-          </div>
-        </div>
-        <div class="col-auto">
-          <q-icon name="workspace_premium" size="3rem" color="primary" />
-        </div>
-      </div>
+      <q-stepper
+        v-model="step"
+        ref="stepperRef"
+        header-nav
+        flat
+        animated
+        color="primary"
+        class="q-pa-none"
+      >
+        <!-- Step 1: معلومات الطالب -->
+        <q-step :name="1" title="معلومات الطالب" icon="person" :done="step > 1">
+          <q-form ref="step1FormRef" class="q-gutter-sm q-pa-sm">
+            <div class="row q-col-gutter-sm">
 
-      <q-separator class="q-mb-lg" />
+              <!-- Row 1: الاسم | اسم الأب | الكنية -->
+              <div class="col-12 col-sm-4">
+                <q-input dense outlined v-model="form.first_name" label="الاسم" />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-input dense outlined v-model="form.father_name" label="اسم الأب" />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-input dense outlined v-model="form.last_name" label="الكنية" />
+              </div>
 
-      <!-- Info Banner -->
-      <q-banner class="bg-blue-1 text-blue-9 q-mb-lg rounded-borders" rounded>
-        <template v-slot:avatar>
-          <q-icon name="info" color="blue-7" />
-        </template>
-        يُرجى تعبئة جميع الحقول المطلوبة بدقة. سيتم مراجعة طلبك من قِبَل الجهات المختصة والتواصل معك عبر البريد الإلكتروني المسجّل.
-      </q-banner>
-
-      <q-form @submit.prevent="submitForm" ref="formRef">
-        <!-- Section 1: Personal Info -->
-        <q-card flat bordered class="q-mb-md">
-          <q-card-section class="q-pb-none">
-            <div class="section-title text-primary">أولاً: البيانات الشخصية</div>
-          </q-card-section>
-          <q-card-section>
-            <div class="row q-col-gutter-md">
-              <div class="col-12 col-sm-6 col-md-3">
-                <q-input
-                  dense outlined
-                  v-model="form.first_name"
-                  label="الاسم الأول *"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
-                <q-input
-                  dense outlined
-                  v-model="form.father_name"
-                  label="اسم الأب *"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
-                <q-input
-                  dense outlined
-                  v-model="form.grandfather_name"
-                  label="اسم الجد *"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
-                <q-input
-                  dense outlined
-                  v-model="form.last_name"
-                  label="الكنية *"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
-                <q-input
-                  dense outlined
-                  v-model="form.mother_name"
-                  label="اسم الأم *"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
-                <q-input
-                  dense outlined
-                  v-model="form.birth_date"
-                  label="تاريخ الولادة *"
-                  type="date"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
-                <q-input
-                  dense outlined
-                  v-model="form.birth_place"
-                  label="مكان الولادة *"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
+              <!-- Row 2: الجنس | اسم الأم | كنية الأم -->
+              <div class="col-12 col-sm-4">
                 <q-select
                   dense outlined
                   v-model="form.gender"
                   :options="genderOptions"
-                  label="الجنس *"
+                  label="الجنس"
                   emit-value map-options
-                  :rules="[(v) => v !== null || 'مطلوب']"
                 />
               </div>
-              <div class="col-12 col-sm-6 col-md-4">
+              <div class="col-12 col-sm-4">
+                <q-input dense outlined v-model="form.mother_name" label="اسم الأم" />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-input dense outlined v-model="form.mother_surname" label="كنية الأم" />
+              </div>
+
+              <!-- Row 3: تاريخ الميلاد | الجنسية | جنسية الأم -->
+              <div class="col-12 col-sm-4">
                 <q-input
+                  :rules="[val => !!val || 'تاريخ الميلاد مطلوب']"
                   dense outlined
-                  v-model="form.card_number"
-                  label="رقم الهوية / الوثيقة *"
-                  :rules="[(v) => !!v || 'مطلوب']"
+                  v-model="form.birth_date"
+                  label="تاريخ الميلاد"
+                  type="date"
+                  stack-label
                 />
               </div>
-              <div class="col-12 col-sm-6 col-md-4">
-                <q-input
-                  dense outlined
-                  v-model="form.contact_number"
-                  label="رقم الهاتف *"
-                  :rules="[(v) => !!v || 'مطلوب']"
+              <div class="col-12 col-sm-4">
+                <CustomQSelect
+                  :lst-data="listStore.lstNationality"
+                  label="الجنسية"
+                  :get-data="listStore.getNationality"
+                  @update:model-value="(val) => (form.nationality_id = val ? String(val.id) : '')"
+                  dense
                 />
               </div>
-              <div class="col-12 col-sm-6 col-md-4">
+              <div class="col-12 col-sm-4">
+                <CustomQSelect
+                  :lst-data="listStore.lstNationality"
+                  label="جنسية الأم"
+                  :get-data="listStore.getNationality"
+                  @update:model-value="(val) => (form.mother_nationality_id = val ? String(val.id) : '')"
+                  dense
+                />
+              </div>
+
+              <!-- Row 4: البريد الإلكتروني | كلمة المرور | تأكيد كلمة المرور -->
+              <div class="col-12 col-sm-4">
                 <q-input
                   dense outlined
                   v-model="form.email"
-                  label="البريد الإلكتروني *"
+                  label="البريد الإلكتروني"
                   type="email"
-                  :rules="[(v) => !!v || 'مطلوب', (v) => /.+@.+\..+/.test(v) || 'غير صالح']"
+                  :rules="[(v) => !!v || 'مطلوب', (v) => /.+@.+\..+/.test(v) || 'بريد غير صالح']"
                 />
               </div>
-            </div>
-          </q-card-section>
-        </q-card>
+              <div class="col-12 col-sm-4">
+                <q-input
+                  dense outlined
+                  v-model="form.password"
+                  label="كلمة المرور"
+                  type="password"
+                  :rules="[(v) => !!v || 'مطلوب']"
+                />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-input
+                  dense outlined
+                  v-model="confirmPassword"
+                  label="تأكيد كلمة المرور"
+                  type="password"
+                  :rules="[(v) => !!v || 'مطلوب', (v) => v === form.password || 'كلمات المرور غير متطابقة']"
+                />
+              </div>
 
-        <!-- Section 2: Foreign Certificate Info -->
-        <q-card flat bordered class="q-mb-md">
-          <q-card-section class="q-pb-none">
-            <div class="section-title text-primary">ثانياً: بيانات الشهادة الأجنبية</div>
-          </q-card-section>
-          <q-card-section>
-            <div class="row q-col-gutter-md">
-              <div class="col-12 col-sm-6 col-md-4">
+              <!-- Row 5: رقم التواصل | نوع الوثيقة -->
+              <div class="col-12 col-sm-6">
+                <q-input dense outlined v-model="form.contact_number" label="رقم التواصل" />
+              </div>
+              <div class="col-12 col-sm-6">
+                <CustomQSelect
+                  :lst-data="listStore.lstDocumentType"
+                  label="نوع الوثيقة"
+                  :get-data="listStore.getDocumentType"
+                  @update:model-value="(val) => (form.document_type_id = val ? String(val.id) : '')"
+                  dense
+                />
+              </div>
+
+              <!-- Row 5: رقم الوثيقة | تاريخ الوثيقة -->
+              <div class="col-12 col-sm-6">
+                <q-input dense outlined v-model="form.document_number" label="رقم الوثيقة" />
+              </div>
+              <div class="col-12 col-sm-6">
                 <q-input
                   dense outlined
-                  v-model="form.cert_country"
-                  label="الدولة المانحة للشهادة *"
-                  :rules="[(v) => !!v || 'مطلوب']"
+                  v-model="form.document_date"
+                  label="تاريخ الوثيقة"
+                  type="date"
+                  stack-label
                 />
               </div>
-              <div class="col-12 col-sm-6 col-md-4">
+
+              <!-- Checkbox: لديه تسلسل دراسي؟ -->
+              <div class="col-12">
+                <q-checkbox v-model="form.has_sequence" label="لديه تسلسل دراسي؟" dense />
+              </div>
+
+              <!-- Row 6: مصدر الشهادة | نوع الشهادة -->
+              <div class="col-12 col-sm-6">
+                <CustomQSelect
+                  :lst-data="listStore.lstCertificateSource"
+                  label="مصدر الشهادة"
+                  :get-data="listStore.getCertificateSource"
+                  @update:model-value="(val) => (form.certificate_source_id = val ? String(val.id) : '')"
+                  dense
+                />
+              </div>
+              <div class="col-12 col-sm-6">
+                <CustomQSelect
+                  :lst-data="listStore.lstRegistrationCertificate"
+                  label="نوع الشهادة"
+                  :get-data="listStore.getRegistrationCertificate"
+                  @update:model-value="(val) => (form.certificate_type_id = val ? String(val.id) : '')"
+                  dense
+                />
+              </div>
+
+              <!-- Row 7: رقم الشهادة | سنة المنح -->
+              <div class="col-12 col-sm-6">
+                <q-input dense outlined v-model="form.certificate_number" label="رقم الشهادة" />
+              </div>
+              <div class="col-12 col-sm-6">
                 <q-input
                   dense outlined
-                  v-model="form.cert_name"
-                  label="اسم الشهادة *"
-                  :rules="[(v) => !!v || 'مطلوب']"
+                  v-model.number="form.certificate_year"
+                  label="سنة المنح"
+                  type="number"
                 />
               </div>
-              <div class="col-12 col-sm-6 col-md-4">
-                <q-input
-                  dense outlined
-                  v-model="form.cert_year"
-                  label="سنة الحصول على الشهادة *"
-                  mask="####"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-4">
-                <q-input
-                  dense outlined
-                  v-model="form.cert_number"
-                  label="رقم الشهادة *"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-4">
-                <q-input
-                  dense outlined
-                  v-model="form.issuing_authority"
-                  label="الجهة المانحة *"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
-              <div class="col-12 col-sm-6 col-md-4">
-                <q-select
-                  dense outlined
-                  v-model="form.requested_equiv"
-                  :options="equivOptions"
-                  label="المعادلة المطلوبة *"
-                  emit-value map-options
-                  :rules="[(v) => !!v || 'مطلوب']"
-                />
-              </div>
+
+              <!-- Row 8: المعدل -->
               <div class="col-12">
                 <q-input
                   dense outlined
-                  v-model="form.notes"
-                  label="ملاحظات إضافية"
-                  type="textarea"
-                  rows="3"
-                  autogrow
+                  v-model.number="form.grade"
+                  label="المعدل"
+                  type="number"
+                />
+              </div>
+
+            </div>
+          </q-form>
+        </q-step>
+
+        <!-- Step 2: معلومات الوثائق -->
+        <q-step :name="2" title="معلومات الوثائق" icon="attach_file" :done="step > 2">
+          <q-form ref="step2FormRef" class="q-gutter-sm q-pa-sm">
+            <div class="row q-col-gutter-sm">
+              <div class="col-12">
+                <CompressedPdfUploader
+                  v-model:compressedfile="form.pdf_file"
+                  label="ارفع ملف PDF (الحجم المسموح به حتى 20 MB)"
+                />
+              </div>
+              <div class="col-12">
+                <CustomQSelect
+                  :lst-data="listStore.lstDirectorate"
+                  label="دائرة الامتحانات"
+                  :get-data="listStore.getDirectorate"
+                  @update:model-value="(val) => (form.directorate_id = val ? String(val.id) : '')"
+                  dense
                 />
               </div>
             </div>
-          </q-card-section>
-        </q-card>
+          </q-form>
+        </q-step>
 
-        <!-- Section 3: Attachments -->
-        <q-card flat bordered class="q-mb-lg">
-          <q-card-section class="q-pb-none">
-            <div class="section-title text-primary">ثالثاً: المستندات المطلوبة</div>
-          </q-card-section>
-          <q-card-section>
-            <div class="row q-col-gutter-md">
-              <div class="col-12 col-sm-6">
-                <div class="text-caption text-grey-7 q-mb-xs">صورة عن الشهادة الأجنبية *</div>
-                <q-file
-                  dense outlined
-                  v-model="form.cert_file"
-                  label="رفع الشهادة"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="attach_file" />
-                  </template>
-                </q-file>
-              </div>
-              <div class="col-12 col-sm-6">
-                <div class="text-caption text-grey-7 q-mb-xs">صورة عن وثيقة الهوية *</div>
-                <q-file
-                  dense outlined
-                  v-model="form.id_file"
-                  label="رفع الهوية"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  :rules="[(v) => !!v || 'مطلوب']"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="badge" />
-                  </template>
-                </q-file>
-              </div>
+        <!-- Navigation -->
+        <template v-slot:navigation>
+          <q-stepper-navigation class="row justify-between q-px-sm q-pb-sm">
+            <q-btn
+              v-if="step > 1"
+              flat
+              color="primary"
+              label="السابق"
+              @click="stepperRef?.previous()"
+            />
+            <div v-else />
+            <div class="row q-gutter-sm">
+              <q-btn
+                v-if="step < 2"
+                unelevated
+                color="primary"
+                label="التالي"
+                @click="nextStep"
+              />
+              <q-btn
+                v-if="step === 2"
+                unelevated
+                color="primary"
+                label="حفظ"
+                :loading="loading"
+                @click="save"
+              />
             </div>
-
-            <q-banner class="bg-amber-1 text-amber-9 q-mt-md rounded-borders" dense rounded>
-              <template v-slot:avatar>
-                <q-icon name="warning" color="amber-8" size="sm" />
-              </template>
-              الملفات المقبولة: PDF, JPG, PNG — الحجم الأقصى لكل ملف: 5 ميغابايت
-            </q-banner>
-          </q-card-section>
-        </q-card>
-
-        <!-- Submit -->
-        <div class="row justify-end q-gutter-sm">
-          <q-btn
-            flat
-            label="إعادة تعيين"
-            color="grey-7"
-            @click="resetForm"
-          />
-          <q-btn
-            unelevated
-            type="submit"
-            label="تقديم الطلب"
-            color="primary"
-            icon="send"
-            :loading="loading"
-          />
-        </div>
-      </q-form>
-
-    </div>
+          </q-stepper-navigation>
+        </template>
+      </q-stepper>
+    </q-card>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useQuasar } from 'quasar';
+import { ref, onMounted } from 'vue';
+import { useQuasar, QStepper, QForm } from 'quasar';
+import { useListStore } from 'stores/list-store';
+import { useRouter } from 'vue-router';
+import CustomQSelect from 'src/components/common/CustomQSelect.vue';
+import CompressedPdfUploader from 'src/components/common/CompressedPdfUploader.vue';
 
 const $q = useQuasar();
-const formRef = ref();
+const listStore = useListStore();
+const router = useRouter();
+
+const step = ref(1);
+const stepperRef = ref<QStepper | null>(null);
+const step1FormRef = ref<QForm | null>(null);
+const step2FormRef = ref<QForm | null>(null);
 const loading = ref(false);
+const confirmPassword = ref('');
 
 const genderOptions = [
   { label: 'ذكر', value: 'male' },
   { label: 'أنثى', value: 'female' },
 ];
 
-const equivOptions = [
-  { label: 'شهادة الثانوية العامة (العلمي)', value: 'scientific' },
-  { label: 'شهادة الثانوية العامة (الأدبي)', value: 'literary' },
-  { label: 'شهادة الثانوية المهنية', value: 'vocational' },
-  { label: 'شهادة الثانوية الشرعية', value: 'sharia' },
-];
-
 const emptyForm = () => ({
+  // Step 1
   first_name: '',
   father_name: '',
-  grandfather_name: '',
   last_name: '',
-  mother_name: '',
-  birth_date: '',
-  birth_place: '',
   gender: null as string | null,
-  card_number: '',
-  contact_number: '',
+  mother_name: '',
+  mother_surname: '',
+  nationality_id: '',
+  mother_nationality_id: '',
+  birth_date: '',
   email: '',
-  cert_country: '',
-  cert_name: '',
-  cert_year: '',
-  cert_number: '',
-  issuing_authority: '',
-  requested_equiv: null as string | null,
-  notes: '',
-  cert_file: null as File | null,
-  id_file: null as File | null,
+  password: '',
+  contact_number: '',
+  document_type_id: '',
+  document_number: '',
+  document_date: '',
+  has_sequence: false,
+  certificate_source_id: '',
+  certificate_type_id: '',
+  certificate_number: '',
+  certificate_year: 0,
+  grade: 0,
+  // Step 2
+  pdf_document_number: '',
+  pdf_file: null as File | null,
+  directorate_id: '',
 });
 
 const form = ref(emptyForm());
 
-const submitForm = async () => {
-  const valid = await formRef.value?.validate();
-  if (!valid) return;
+onMounted(() => {
+  listStore.getNationality();
+  listStore.getDocumentType();
+  listStore.getCertificateSource();
+  listStore.getRegistrationCertificate();
+  listStore.getDirectorate();
+});
 
+const nextStep = async () => {
+  const valid = (await step1FormRef.value?.validate()) ?? true;
+  if (valid) {
+    stepperRef.value?.next();
+  } else {
+    $q.notify({ type: 'warning', message: 'يرجى تعبئة جميع الحقول المطلوبة', position: 'top' });
+  }
+};
+
+const save = async () => {
+  const valid = (await step2FormRef.value?.validate()) ?? true;
+  if (!valid) {
+    $q.notify({ type: 'warning', message: 'يرجى تعبئة جميع الحقول المطلوبة', position: 'top' });
+    return;
+  }
   loading.value = true;
   try {
     // TODO: wire up to API endpoint
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    $q.notify({ type: 'positive', message: 'تم تقديم طلب المعادلة بنجاح. سيتم التواصل معك قريباً.', position: 'top' });
+    $q.notify({ type: 'positive', message: 'تم حفظ بيانات الطالب بنجاح', position: 'top' });
     form.value = emptyForm();
-    formRef.value?.resetValidation();
+    confirmPassword.value = '';
+    step.value = 1;
+    void router.push('/verify-email');
   } catch {
-    $q.notify({ type: 'negative', message: 'حدث خطأ أثناء تقديم الطلب. يرجى المحاولة مرة أخرى.', position: 'top' });
+    $q.notify({ type: 'negative', message: 'حدث خطأ أثناء الحفظ. يرجى المحاولة مرة أخرى.', position: 'top' });
   } finally {
     loading.value = false;
   }
 };
-
-const resetForm = () => {
-  form.value = emptyForm();
-  formRef.value?.resetValidation();
-};
 </script>
-
-<style scoped>
-.equivalency-shell {
-  max-width: 960px;
-}
-
-.section-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #e5e7eb;
-  margin-bottom: 4px;
-}
-</style>

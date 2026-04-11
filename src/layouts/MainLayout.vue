@@ -35,10 +35,6 @@
               <router-link to="/login" class="nav-link text-primary text-weight-bold">
                 تسجيل الدخول
               </router-link>
-              <span class="text-grey-5 q-mx-sm">|</span>
-              <router-link to="/register" class="nav-link text-primary text-weight-bold">
-                إنشاء حساب
-              </router-link>
             </div>
           </div>
 
@@ -73,14 +69,6 @@
           </q-item-section>
           <q-item-section>
             <div class="drawer-item-label">الرئيسية</div>
-          </q-item-section>
-        </q-item>
-        <q-item clickable v-ripple to="/register">
-          <q-item-section avatar>
-            <q-icon name="assignment" />
-          </q-item-section>
-          <q-item-section>
-            <div class="drawer-item-label">التسجيل في الامتحانات</div>
           </q-item-section>
         </q-item>
         <q-item clickable v-ripple to="/equivalency">
