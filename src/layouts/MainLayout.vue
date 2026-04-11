@@ -25,9 +25,9 @@
             <router-link to="/" class="nav-link text-primary text-weight-bold">
               الرئيسية
             </router-link>
-            <router-link to="/equivalency" class="nav-link text-primary text-weight-bold">
+            <!-- <router-link to="/equivalency" class="nav-link text-primary text-weight-bold">
               معادلة الشهادات
-            </router-link>
+            </router-link> -->
             <div
               class="q-pl-lg q-ml-lg"
               style="border-right: 1px solid rgba(15, 23, 42, 0.08)"
@@ -71,14 +71,14 @@
             <div class="drawer-item-label">الرئيسية</div>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple to="/equivalency">
+        <!-- <q-item clickable v-ripple to="/equivalency">
           <q-item-section avatar>
             <q-icon name="workspace_premium" />
           </q-item-section>
           <q-item-section>
             <div class="drawer-item-label">معادلة الشهادات</div>
           </q-item-section>
-        </q-item>
+        </q-item> -->
         <q-separator spaced />
         <q-item clickable v-ripple to="/login">
           <q-item-section avatar>

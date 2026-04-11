@@ -2,13 +2,12 @@
   <q-page class="bg-grey-1 q-pa-md">
     <q-card class="q-mx-auto shadow-2" style="max-width: 900px">
       <q-card-section class="bg-primary text-white q-py-sm">
-        <div class="text-h6">إضافة طالب</div>
+        <div class="text-h6">طلب معادلة الشهادة</div>
       </q-card-section>
 
       <q-stepper
         v-model="step"
         ref="stepperRef"
-        header-nav
         flat
         animated
         color="primary"
@@ -21,13 +20,13 @@
 
               <!-- Row 1: الاسم | اسم الأب | الكنية -->
               <div class="col-12 col-sm-4">
-                <q-input dense outlined v-model="form.first_name" label="الاسم" />
+                <q-input dense outlined v-model="form.first_name" label="الاسم" :rules="[(v) => !!v || 'مطلوب']" />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input dense outlined v-model="form.father_name" label="اسم الأب" />
+                <q-input dense outlined v-model="form.father_name" label="اسم الأب" :rules="[(v) => !!v || 'مطلوب']" />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input dense outlined v-model="form.last_name" label="الكنية" />
+                <q-input dense outlined v-model="form.last_name" label="الكنية" :rules="[(v) => !!v || 'مطلوب']" />
               </div>
 
               <!-- Row 2: الجنس | اسم الأم | كنية الأم -->
@@ -38,19 +37,20 @@
                   :options="genderOptions"
                   label="الجنس"
                   emit-value map-options
+                  :rules="[(v) => !!v || 'مطلوب']"
                 />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input dense outlined v-model="form.mother_name" label="اسم الأم" />
+                <q-input dense outlined v-model="form.mother_name" label="اسم الأم" :rules="[(v) => !!v || 'مطلوب']" />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input dense outlined v-model="form.mother_surname" label="كنية الأم" />
+                <q-input dense outlined v-model="form.mother_surname" label="كنية الأم" :rules="[(v) => !!v || 'مطلوب']" />
               </div>
 
               <!-- Row 3: تاريخ الميلاد | الجنسية | جنسية الأم -->
               <div class="col-12 col-sm-4">
                 <q-input
-                  :rules="[val => !!val || 'تاريخ الميلاد مطلوب']"
+                  :rules="[(v) => !!v || 'مطلوب']"
                   dense outlined
                   v-model="form.birth_date"
                   label="تاريخ الميلاد"
@@ -64,6 +64,7 @@
                   label="الجنسية"
                   :get-data="listStore.getNationality"
                   @update:model-value="(val) => (form.nationality_id = val ? String(val.id) : '')"
+                  :rules="[(v) => !!v || 'مطلوب']"
                   dense
                 />
               </div>
@@ -73,6 +74,7 @@
                   label="جنسية الأم"
                   :get-data="listStore.getNationality"
                   @update:model-value="(val) => (form.mother_nationality_id = val ? String(val.id) : '')"
+                  :rules="[(v) => !!v || 'مطلوب']"
                   dense
                 />
               </div>
@@ -108,7 +110,7 @@
 
               <!-- Row 5: رقم التواصل | نوع الوثيقة -->
               <div class="col-12 col-sm-6">
-                <q-input dense outlined v-model="form.contact_number" label="رقم التواصل" />
+                <q-input dense outlined v-model="form.contact_number" label="رقم التواصل" :rules="[(v) => !!v || 'مطلوب']" />
               </div>
               <div class="col-12 col-sm-6">
                 <CustomQSelect
@@ -116,13 +118,14 @@
                   label="نوع الوثيقة"
                   :get-data="listStore.getDocumentType"
                   @update:model-value="(val) => (form.document_type_id = val ? String(val.id) : '')"
+                  :rules="[(v) => !!v || 'مطلوب']"
                   dense
                 />
               </div>
 
-              <!-- Row 5: رقم الوثيقة | تاريخ الوثيقة -->
+              <!-- Row 6: رقم الوثيقة | تاريخ الوثيقة -->
               <div class="col-12 col-sm-6">
-                <q-input dense outlined v-model="form.document_number" label="رقم الوثيقة" />
+                <q-input dense outlined v-model="form.document_number" label="رقم الوثيقة" :rules="[(v) => !!v || 'مطلوب']" />
               </div>
               <div class="col-12 col-sm-6">
                 <q-input
@@ -131,6 +134,7 @@
                   label="تاريخ الوثيقة"
                   type="date"
                   stack-label
+                  :rules="[(v) => !!v || 'مطلوب']"
                 />
               </div>
 
@@ -139,13 +143,14 @@
                 <q-checkbox v-model="form.has_sequence" label="لديه تسلسل دراسي؟" dense />
               </div>
 
-              <!-- Row 6: مصدر الشهادة | نوع الشهادة -->
+              <!-- Row 7: مصدر الشهادة | نوع الشهادة -->
               <div class="col-12 col-sm-6">
                 <CustomQSelect
                   :lst-data="listStore.lstCertificateSource"
                   label="مصدر الشهادة"
                   :get-data="listStore.getCertificateSource"
                   @update:model-value="(val) => (form.certificate_source_id = val ? String(val.id) : '')"
+                  :rules="[(v) => !!v || 'مطلوب']"
                   dense
                 />
               </div>
@@ -155,13 +160,14 @@
                   label="نوع الشهادة"
                   :get-data="listStore.getRegistrationCertificate"
                   @update:model-value="(val) => (form.certificate_type_id = val ? String(val.id) : '')"
+                  :rules="[(v) => !!v || 'مطلوب']"
                   dense
                 />
               </div>
 
-              <!-- Row 7: رقم الشهادة | سنة المنح -->
+              <!-- Row 8: رقم الشهادة | سنة المنح -->
               <div class="col-12 col-sm-6">
-                <q-input dense outlined v-model="form.certificate_number" label="رقم الشهادة" />
+                <q-input dense outlined v-model="form.certificate_number" label="رقم الشهادة" :rules="[(v) => !!v || 'مطلوب']" />
               </div>
               <div class="col-12 col-sm-6">
                 <q-input
@@ -169,16 +175,18 @@
                   v-model.number="form.certificate_year"
                   label="سنة المنح"
                   type="number"
+                  :rules="[(v) => !!v || 'مطلوب']"
                 />
               </div>
 
-              <!-- Row 8: المعدل -->
+              <!-- Row 9: المعدل -->
               <div class="col-12">
                 <q-input
                   dense outlined
                   v-model.number="form.grade"
                   label="المعدل"
                   type="number"
+                  :rules="[(v) => v !== null && v !== undefined && String(v) !== '' || 'مطلوب']"
                 />
               </div>
 
