@@ -195,9 +195,7 @@
                   :lst-data="listStore.lstCertificateSource"
                   label="مصدر الشهادة"
                   :get-data="listStore.getCertificateSource"
-                  @update:model-value="
-                    (val) => (form.certificate_source_id = val ? String(val.id) : '')
-                  "
+                  @update:model-value="onCertificateSourceChange"
                   :rules="[(v) => !!v || 'مطلوب']"
                   dense
                 />
@@ -206,7 +204,7 @@
                 <CustomQSelect
                   :lst-data="listStore.lstRegistrationCertificate"
                   label="نوع الشهادة"
-                  :get-data="listStore.getRegistrationCertificate"
+                  :get-data="() => listStore.getRegistrationCertificate(form.certificate_source_id)"
                   @update:model-value="
                     (val) => (form.certificate_type_id = val ? String(val.id) : '')
                   "
@@ -366,9 +364,14 @@ onMounted(() => {
   listStore.getNationality();
   listStore.getDocumentType();
   listStore.getCertificateSource();
-  listStore.getRegistrationCertificate();
   listStore.getDirectorate();
 });
+
+const onCertificateSourceChange = (val: { id: number | string } | null) => {
+  form.value.certificate_source_id = val ? String(val.id) : '';
+  form.value.certificate_type_id = '';
+  void listStore.getRegistrationCertificate(form.value.certificate_source_id);
+};
 
 const nextStep = async () => {
   const valid = (await step1FormRef.value?.validate()) ?? true;
