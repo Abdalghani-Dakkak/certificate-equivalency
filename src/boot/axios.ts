@@ -15,7 +15,12 @@ declare module 'vue' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'https://ruse-kinswoman-decoy.ngrok-free.dev/' });
+const api = axios.create({
+  baseURL: 'https://ruse-kinswoman-decoy.ngrok-free.dev/',
+  headers: {
+    'ngrok-skip-browser-warning': 'true',
+  },
+});
 
 export default defineBoot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
