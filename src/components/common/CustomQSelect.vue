@@ -426,13 +426,10 @@ const inputStyleComputed = computed(() => ({
   ...props.inputStyle,
 }));
 const popupClassComputed = computed(() => {
-  return `${props.popupClass} ${
-    import.meta.env.SSR
-      ? ""
-      : document.body.classList.contains("body--dark")
-      ? "bg-grey-10 text-white"
-      : "bg-white text-black"
-  }`;
+  const darkClass = typeof document !== 'undefined' && document.body.classList.contains("body--dark")
+    ? "bg-grey-10 text-white"
+    : "bg-white text-black";
+  return `${props.popupClass} ${darkClass}`;
 });
 
 watch(
