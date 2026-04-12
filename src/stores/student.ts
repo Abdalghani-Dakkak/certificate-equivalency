@@ -1,52 +1,57 @@
 import { defineStore } from 'pinia';
 import { api } from 'boot/axios';
+import { StudentEndPoint } from 'src/end-point/student-end-point';
 import { apiExecutor } from 'src/shared/apiExecutor';
 import { createApiState } from 'src/shared/apiState';
-import type { FreeStudentInfo, Documents, LoginInfo } from 'src/types';
+import type { LoginInfo } from 'src/types';
 import { LocalStorage } from 'quasar';
+
+type ApiPayload<T> = {
+  success?: boolean;
+  data?: T;
+};
+
+function unwrapPayload<T>(payload: T | ApiPayload<T> | null | undefined): T | null {
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    return payload.data ?? null;
+  }
+
+  return (payload ?? null) as T | null;
+}
+
+function asString(value: unknown, fallback = ''): string {
+  return typeof value === 'string' ? value : fallback;
+}
+
+function asBoolean(value: unknown, fallback = false): boolean {
+  return typeof value === 'boolean' ? value : fallback;
+}
 
 export const useStudentStore = defineStore('student', {
   state: () => ({
     token: LocalStorage.getItem('token') || '',
     isLoggedIn: !!LocalStorage.getItem('token'),
     isEmailVerified: false,
-
-    // Single source of truth for student info is now loginState
-    // studentInfo removed
-    profileImageBlob: null as string | null,
-    idProofBlob: null as string | null,
-
-    documents: {
-      photo: null,
-      ninthGradeCert: null,
-      idCard: null,
-      vocationalSeqDoc: null,
-    } as Documents,
-
-    loginState: createApiState<LoginInfo & Partial<FreeStudentInfo>>(),
-    fetchProfileState: createApiState<FreeStudentInfo>(),
+    loginState: createApiState<LoginInfo>(),
     verifyEmailState: createApiState<boolean>(),
     resendVerificationState: createApiState<boolean>(),
-    // registerState and updateProfileState might need updates or removal based on backend changes
-    // keeping them generic for now if needed, or removing if strictly following "delete unnecessary"
-    registerState: createApiState<any>(),
-    updateProfileState: createApiState<void>(),
   }),
 
   actions: {
-      login(email: string, password: string, fn?: () => void) {
+    login(email: string, password: string, fn?: () => void) {
       return apiExecutor<LoginInfo>(
         this.loginState,
-        () => api.post('/loginFreeStudent', { email, password }),
+        () => api.post(StudentEndPoint.login, { email, password }),
         {
           transform: (payload) => {
-            const d = Array.isArray(payload) ? payload[0] : payload;
+            const data = unwrapPayload<Record<string, unknown>>(payload) ?? {};
+
             return {
-              token: String(d?.token ?? ''),
-              verification: !!d?.verification,
-              email: String(d?.email ?? email),
-              first_name: String(d?.first_name ?? ''),
-              last_name: String(d?.last_name ?? ''),
+              token: asString(data.token),
+              verification: asBoolean(data.verification, asBoolean(data.is_verified)),
+              email: asString(data.email, email),
+              first_name: asString(data.first_name),
+              last_name: asString(data.last_name),
             };
           },
           onSuccess: (data) => {
@@ -62,40 +67,10 @@ export const useStudentStore = defineStore('student', {
               LocalStorage.remove('token');
               LocalStorage.remove('loginInfo');
             }
+
             fn?.();
           },
         }
-      );
-    },
-
-    loadLoginInfo() {
-      const stored = LocalStorage.getItem<LoginInfo>('loginInfo');
-      if (stored) {
-        this.loginState.value = stored;
-        this.token = stored.token;
-        this.isLoggedIn = true;
-        this.isEmailVerified = stored.verification;
-      }
-    },
-
-    async fetchProfile() {
-      if (!this.token) return;
-      await apiExecutor<FreeStudentInfo>(
-        this.fetchProfileState,
-        () => api.get('/getFreeStudentInfo'),
-        {
-          transform: (data) => {
-            // Ensure data matches FreeStudentInfo interface
-            // If API returns array, take first item
-            const user = Array.isArray(data) ? data[0] : data;
-            return user as FreeStudentInfo;
-          },
-          onSuccess: (data) => {
-            const current = this.loginState.value || {} as Partial<LoginInfo>;
-            this.loginState.value = { ...current, ...data } as LoginInfo & FreeStudentInfo;
-          },
-        },
-        { showNotify: false }
       );
     },
 
@@ -109,14 +84,28 @@ export const useStudentStore = defineStore('student', {
       delete api.defaults.headers.common['Authorization'];
     },
 
-      verifyEmail(code: string, fn?: () => void) {
+    verifyEmail(code: string, fn?: () => void) {
       return apiExecutor<boolean>(
         this.verifyEmailState,
-        () => api.post('/confirmFreeStudentOrder', { verification_code: code }),
+        () =>
+          api.post(StudentEndPoint.verifyEmail, {
+            verification_code: code,
+            token: this.token,
+          }),
         {
-          transform: (data) => !!(data && (data.success ?? true)),
+          transform: (payload) => {
+            const data = unwrapPayload<Record<string, unknown> | boolean>(payload);
+            if (typeof data === 'boolean') {
+              return data;
+            }
+
+            return asBoolean(data?.success, true);
+          },
           onSuccess: (ok) => {
-            if (ok) this.isEmailVerified = true;
+            if (ok) {
+              this.isEmailVerified = true;
+            }
+
             fn?.();
           },
         }
@@ -126,41 +115,21 @@ export const useStudentStore = defineStore('student', {
     async resendVerificationCode() {
       return apiExecutor<boolean>(
         this.resendVerificationState,
-        () => api.post('/sendVerificationCodeByEmail'),
-        {}
+        () =>
+          api.post(StudentEndPoint.resendVerificationCode, {
+            token: this.token,
+          }),
+        {
+          transform: (payload) => {
+            const data = unwrapPayload<Record<string, unknown> | boolean>(payload);
+            if (typeof data === 'boolean') {
+              return data;
+            }
+
+            return asBoolean(data?.success, true);
+          },
+        }
       );
     },
-
-    async fetchStudentImages() {
-      if (!this.token) return;
-
-      const fetchImage = async (endpoint: string): Promise<string | null> => {
-        try {
-          const response = await api.get(endpoint, { responseType: 'blob' });
-          if (response.data && response.data.size > 0) {
-            return URL.createObjectURL(response.data);
-          }
-        } catch (error) {
-          console.error(`Failed to fetch image from ${endpoint}`, error);
-        }
-        return null;
-      };
-
-      this.profileImageBlob = await fetchImage('/getFreeStudentPhoto');
-      this.idProofBlob = await fetchImage('/getFreeStudentDocument');
-    },
-
-
   },
-
-  getters: {
-    // Helper to safely access student info without null checks everywhere
-    info: (state) => (state.loginState.value as FreeStudentInfo) || {} as Partial<FreeStudentInfo>,
-
-    isProfileComplete: (state) => {
-       const info = state.loginState.value as FreeStudentInfo;
-       if (!info) return false;
-       return !!(info.first_name && info.last_name && info.card_number && info.birth_date);
-    }
-  }
 });
